@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Планирование курсов{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Планирование курсов</h1>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    План запуска курсов на ближайшие 2 года
+                </p>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                {% if user.is_superuser %}
+                <select 
+                    class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    onchange="window.location.href='?branch_id=' + this.value"
+                >
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if branch.id == selected_branch_id %}selected{% endif %}>
+                        {{ branch.city }} - {{ branch.address }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+
+                <select 
+                    class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    onchange="window.location.href=updateQueryString('direction', this.value)"
+                >
+                    <option value="" {% if not selected_direction %}selected{% endif %}>Все направления</option>
+                    {% for direction in directions %}
+                    <option value="{{ direction.id }}" {% if direction.id == selected_direction %}selected{% endif %}>
+                        {{ direction.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Кнопка для показа/скрытия скрытых курсов -->
+                {% if hidden_courses %}
+                <a href="?{% if not show_hidden %}show_hidden=true{% endif %}{% if selected_branch_id %}&branch_id={{ selected_branch_id }}{% endif %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white {% if show_hidden %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    {% if show_hidden %}
+                    Скрыть удаленные курсы
+                    {% else %}
+                    Показать удаленные курсы ({{ hidden_courses|length }})
+                    {% endif %}
+                </a>
+                {% endif %}
+
+                <!-- Добавить кнопку экспорта -->
+                <button onclick="exportPlanning()" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <div class="flex flex-wrap gap-2">
+                {% for month, stats in monthly_stats.items %}
+                <div class="inline-flex items-center px-3 py-1 rounded-full {% if stats.count > 3 %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                    <span class="text-sm font-medium">{{ month }}</span>
+                    <span class="ml-2 text-xs font-semibold">{{ stats.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-gray-700">
+                                Курс
+                            </th>
+                            {% for month in months %}
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {{ month }}
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="planningTableBody">
+                        {% for course in courses %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 {% if course in hidden_courses %}opacity-50{% endif %}" data-course-name="{{ course }}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white sticky left-0 bg-white dark:bg-gray-800">
+                                <div class="flex items-center">
+                                    <button class="mr-2 text-gray-400 hover:text-gray-600 cursor-move handle">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                        </svg>
+                                    </button>
+                                    <span>{{ course }}</span>
+                                    <button class="ml-2 text-gray-400 hover:text-gray-600" onclick="toggleCourseVisibility('{{ course }}')">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {% if course in hidden_courses %}
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            {% else %}
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                            {% endif %}
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                            {% for month in months %}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {% with date=schedule|get_item:month|get_item:course %}
+                                {% if date %}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    {% if course.direction == 'Python' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                                    {% elif course.direction == 'JavaScript' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                    {% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% endif %}">
+                                    {{ date }}
+                                </span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Инициализация Sortable
+document.addEventListener('DOMContentLoaded', function() {
+    const tbody = document.getElementById('planningTableBody');
+    new Sortable(tbody, {
+        handle: '.handle',
+        animation: 150,
+        onEnd: function() {
+            const courses = Array.from(tbody.querySelectorAll('tr')).map(row => row.dataset.courseName);
+            updateCoursesOrder(courses);
+        }
+    });
+});
+
+function updateCoursesOrder(courses) {
+    const formData = new FormData();
+    courses.forEach(course => {
+        formData.append('courses[]', course);
+    });
+    
+    fetch('/plans/reorder/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+    });
+}
+
+function toggleCourseVisibility(courseName) {
+    const branchId = '{{ selected_branch_id }}';
+    fetch('/plans/toggle/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `course_name=${encodeURIComponent(courseName)}&branch_id=${branchId}`
+    }).then(() => {
+        window.location.reload();
+    });
+}
+
+function updateQueryString(key, value) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (value) {
+        urlParams.set(key, value);
+    } else {
+        urlParams.delete(key);
+    }
+    // Сохраняем branch_id если он есть
+    const branchId = '{{ selected_branch_id }}';
+    if (branchId) {
+        urlParams.set('branch_id', branchId);
+    }
+    return '?' + urlParams.toString();
+}
+
+function exportPlanning() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const branchId = '{{ selected_branch_id }}';
+    if (branchId) {
+        urlParams.set('branch_id', branchId);
+    }
+    window.location.href = '/plans/export/?' + urlParams.toString();
+}
+</script>
+
+<style>
+    .overflow-x-auto {
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+{% endblock %} 

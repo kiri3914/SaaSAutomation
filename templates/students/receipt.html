@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квитанция</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .receipt {
+            width: 100%;
+            max-width: 350px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            min-height: 100%;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .logo {
+            width: 50px;
+            margin-right: 15px;
+        }
+
+        .header h2 {
+            font-size: 1.2em;
+            color: #333;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 15px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .category {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .category .icon {
+            width: 20px;
+            margin-right: 8px;
+        }
+
+        .success-section {
+            background-color: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .success {
+            font-weight: bold;
+            color: #155724;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+
+        .amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #155724;
+            margin: 0;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        .info-table td {
+            font-size: 0.9em;
+            color: #555;
+            padding: 2px 0;
+        }
+
+        .info-table .label {
+            font-weight: bold;
+            color: #333;
+            width: 40%;
+        }
+
+        .info-table .value {
+            text-align: right;
+            width: 60%;
+        }
+
+        .footer-section {
+            border-top: 1px dashed #e0e0e0;
+            padding-top: 15px;
+            margin-top: 20px;
+            min-height: 180px; /* Увеличенная высота для размещения элементов ниже */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .footer-text {
+            font-size: 0.6em;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            line-height: 1.4;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .stamp-signature {
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .stamp {
+            width: 160px; /* Сохраняем размер печати */
+            height: auto;
+            opacity: 0.8;
+            image-rendering: crisp-edges;
+            filter: contrast(1.3);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo" class="logo">
+            <h2>Образование</h2>
+        </div>
+        <div class="section">
+            <table class="info-table">
+                <tr><td class="label">Курс:</td><td class="value">{{ course_name }}</td></tr>
+                <tr><td class="label">Студент(ка):</td><td class="value">{{ student_name }}</td></tr>
+            </table>
+        </div>
+        <div class="section success-section">
+            <p class="success">Платеж успешно совершен</p>
+            <p class="amount">{{ amount }}</p>
+        </div>
+        <div class="section">
+            <table class="info-table">
+                <tr><td class="label">№ квитанции:</td><td class="value">{{ receipt_number }}</td></tr>
+                <tr><td class="label">Город:</td><td class="value">{{ city }}</td></tr>
+                <tr><td class="label">Организация:</td><td class="value">{{ organization }}</td></tr>
+                <tr><td class="label">БИК:</td><td class="value">{{ bik }}</td></tr>
+                <tr><td class="label">БИН:</td><td class="value">{{ bin }}</td></tr>
+                <tr><td class="label">Счет:</td><td class="value">{{ account }}</td></tr>
+                <tr><td class="label">Дата и время:</td><td class="value">{{ datetime }}</td></tr>
+                {% if comment %}
+                    <tr><td class="label">Комментарий:</td><td class="value">{{ comment }}</td></tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="footer-section">
+            <div class="stamp-signature">
+                <table class="info-table">
+                    <tr><td class="label">Директор:</td><td class="value">{{ director_name }}</td></tr>
+                </table>
+                {% if stamp_base64 %}
+                    <center>
+                        <img src="data:image/png;base64,{{ stamp_base64 }}" alt="Печать" class="stamp">
+                    </center>
+                {% endif %}
+                <p class="footer-text">Настоящая квитанция является подтверждением оплаты и имеет юридическую силу при наличии печати.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

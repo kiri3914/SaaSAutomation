@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h1>Добавить урок для курса: {{ course.title }}</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="id_title" class="form-label">Название урока</label>
+      {{ form.title }}
+    </div>
+    <div class="mb-3">
+      <label for="id_lesson_date" class="form-label">Дата и время урока</label>
+      {{ form.lesson_date }}
+    </div>
+    <div class="mb-3">
+      <label for="id_video_link" class="form-label">Ссылка на запись урока</label>
+      {{ form.video_link }}
+    </div>
+    <div class="mb-3">
+      <label for="id_additional_info" class="form-label">Описание урока</label>
+      {{ form.additional_info }}
+    </div>
+    <div class="mb-3">
+      <label for="files" class="form-label">Прикрепить файлы</label>
+      <input type="file" class="form-control" name="files" id="files" multiple>
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить урок</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,218 @@
+/* Основные стили календаря */
+.fc {
+    max-width: 100%;
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Темная тема для календаря */
+.dark .fc {
+    background: rgb(17 24 39);
+}
+
+/* Границы ячеек */
+.fc-theme-standard td, 
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border-color: rgb(229 231 235);
+}
+
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th,
+.dark .fc-theme-standard .fc-scrollgrid {
+    border-color: rgb(55 65 81);
+}
+
+/* Заголовок календаря */
+.fc .fc-toolbar-title {
+    font-size: 1.25rem;
+    color: rgb(17 24 39);
+}
+
+.dark .fc .fc-toolbar-title {
+    color: rgb(243 244 246);
+}
+
+/* Кнопки */
+.fc .fc-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    background-color: white;
+    color: rgb(55 65 81);
+    border: 1px solid rgb(229 231 235);
+    transition: all 0.2s;
+}
+
+.dark .fc .fc-button {
+    background-color: rgb(31 41 55);
+    color: rgb(209 213 219);
+    border-color: rgb(75 85 99);
+}
+
+.fc .fc-button:hover {
+    background-color: rgb(249 250 251);
+}
+
+.dark .fc .fc-button:hover {
+    background-color: rgb(55 65 81);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background-color: rgb(79 70 229);
+    border-color: rgb(79 70 229);
+    color: white;
+}
+
+.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
+.dark .fc .fc-button-primary:not(:disabled):active {
+    background-color: rgb(99 102 241);
+    border-color: rgb(99 102 241);
+}
+
+/* Числа и заголовки дней */
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion {
+    color: rgb(55 65 81);
+    text-decoration: none !important;
+}
+
+.dark .fc-daygrid-day-number,
+.dark .fc-col-header-cell-cushion {
+    color: rgb(209 213 219);
+}
+
+/* События */
+.fc-event {
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+    font-size: 0.875rem;
+    border: none;
+    margin: 1px 0;
+    cursor: pointer;
+}
+
+.fc-h-event {
+    background-color: rgb(79 70 229);
+    border: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .fc-h-event {
+    background-color: rgb(99 102 241);
+}
+
+/* Сегодняшний день */
+.fc .fc-day-today {
+    background-color: rgb(243 244 246) !important;
+}
+
+.dark .fc .fc-day-today {
+    background-color: rgb(31 41 55) !important;
+}
+
+/* Неактивные дни */
+.fc .fc-day-disabled {
+    background-color: rgb(249 250 251);
+}
+
+.dark .fc .fc-day-disabled {
+    background-color: rgb(17 24 39);
+}
+
+/* Временная сетка */
+.fc .fc-timegrid-slot {
+    height: 2.5rem;
+}
+
+.fc .fc-timegrid-axis,
+.fc .fc-timegrid-slot-label {
+    color: rgb(107 114 128);
+}
+
+.dark .fc .fc-timegrid-axis,
+.dark .fc .fc-timegrid-slot-label {
+    color: rgb(156 163 175);
+}
+
+/* Стили для недельного вида */
+.dark .fc-timegrid,
+.dark .fc-timegrid-body,
+.dark .fc-timegrid-col {
+    background: rgb(31 41 55);
+}
+
+/* Время в недельном виде */
+.dark .fc-timegrid-slot-label {
+    color: rgb(156 163 175);
+    background: rgb(31 41 55);
+}
+
+/* Заголовки в недельном виде */
+.dark .fc-timegrid-axis-cushion,
+.dark .fc-timegrid-slot-label-cushion {
+    color: rgb(156 163 175);
+}
+
+/* Сегодняшняя колонка в недельном виде */
+.dark .fc-timegrid-col.fc-day-today {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Текущее время */
+.dark .fc-timegrid-now-indicator-line {
+    border-color: rgb(239 68 68);
+}
+
+.dark .fc-timegrid-now-indicator-arrow {
+    border-color: rgb(239 68 68);
+}
+
+/* Всплывающие подсказки */
+.dark .fc-popover {
+    background-color: rgb(31 41 55);
+    border-color: rgb(75 85 99);
+}
+
+.dark .fc-popover-header {
+    background-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+}
+
+.dark .fc-popover-body {
+    color: rgb(229 231 235);
+}
+
+/* Ссылка "еще" */
+.dark .fc-daygrid-more-link {
+    color: rgb(96 165 250);
+}
+
+/* Выделение при наведении */
+.dark .fc-highlight {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Фон событий */
+.dark .fc-bg-event {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Нерабочие часы */
+.dark .fc-nonbusiness {
+    background: rgb(17 24 39);
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .fc .fc-toolbar-title {
+        font-size: 1.5em;
+    }
+    
+    .fc .fc-daygrid-day {
+        min-height: 80px;
+    }
+} 

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h1>Мои курсы</h1>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>Название курса</th>
+          <th>Дата начала</th>
+          <th>Время начала</th>
+          <th>Действие</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+        <tr>
+          <td>{{ course.title }}</td>
+          <td>{{ course.direction }}</td>
+          <td>{{ course.date_start}} </td>
+          <td>{{ course.time_start }}</td>
+          <td>
+            <a href="{% url 'course_lessons' course.id %}" class="btn btn-primary">Перейти к урокам</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">Нет курсов для отображения</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <!-- Детали урока -->
+  <h1>{{ lesson.title }}</h1>
+  <p><strong>Дата и время:</strong> {% if lesson.lesson_date %}{{ lesson.lesson_date|date:"Y-m-d H:i" }}{% endif %}</p>
+  {% if lesson.video_link %}
+  <p><strong>Ссылка на запись:</strong> <a href="{{ lesson.video_link }}" target="_blank">Смотреть запись</a></p>
+  {% endif %}
+  <p><strong>Описание урока:</strong> {{ lesson.additional_info }}</p>
+  {% if files %}
+  <p><strong>Прикрепленные файлы:</strong>
+    {% for file in files %}
+      <a href="{{ file.file.url }}" target="_blank">{{ file.file.name }}</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  <!-- Форма посещаемости -->
+  <h2>Посещаемость студентов</h2>
+  <form method="post">
+    {% csrf_token %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Студент</th>
+          <th>Присутствовал</th>
+          <th>Причина отсутствия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% comment %}
+          Здесь предполагается, что у курса есть связь со студентами (например, course.students).
+          Если такой связи нет, реализуйте соответствующий механизм получения списка студентов.
+        {% endcomment %}
+        {% for student in lesson.course.students.all %}
+        <tr>
+          <td>{{ student.get_full_name }}</td>
+          <td>
+            <input type="checkbox" name="attendance_{{ student.id }}" value="present">
+          </td>
+          <td>
+            <input type="text" name="absence_reason_{{ student.id }}" class="form-control">
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3">Нет студентов для отображения</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Сохранить посещаемость</button>
+  </form>
+</div>
+
+<!-- Дополнительный JavaScript для управления состоянием полей посещаемости (по желанию) -->
+<script>
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const row = checkbox.closest('tr');
+      const textField = row.querySelector('input[type="text"]');
+      if (checkbox.checked) {
+        textField.disabled = true;
+        textField.value = "";
+      } else {
+        textField.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

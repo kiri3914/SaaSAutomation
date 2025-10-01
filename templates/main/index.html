@@ -1,0 +1,487 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная{% endblock %}
+
+{% block extra_head %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<link href="{% static 'css/calendar.css' %}" rel="stylesheet" />
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ru.js'></script>
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            Добро пожаловать, {{ user.username }}!
+        </h1>
+        
+        <!-- Статистика и дела на сегодня -->
+        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <!-- Статистика -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                    Всего графиков
+                    </dt>
+                                <dd class="flex items-baseline">
+                                    <div class="text-2xl font-semibold text-gray-900 dark:text-white" id="total-schedules">
+                                        0
+                                    </div>
+                    </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Дела на сегодня -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                        Дела на сегодня
+                    </h3>
+                    <div id="today-events" class="space-y-3">
+                        <!-- JavaScript будет вставлять события сюда -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- В блоке статистики добавим кнопки -->
+        <div class="mt-4 flex space-x-4">
+            <a href="{% url 'weekly_schedule_create' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Недельный график
+            </a>
+            <a href="{% url 'single_schedule_create' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Однодневный график
+            </a>
+            <a href="{% url 'flexible_schedule_create' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Гибкий график
+            </a>
+        </div>
+
+        <!-- Календарь -->
+        <div class="mt-8">
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                        Календарь занятости
+                    </h3>
+                    <div id="calendar"></div>
+                </div>
+        </div>
+    </div>
+
+    <!-- Последние графики -->
+        <div class="mt-8">
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+                <div id="recent-schedules">
+                    <!-- JavaScript будет вставлять графики сюда -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Основные стили календаря */
+.fc {
+    max-width: 100%;
+    background: white;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.dark .fc {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+/* Заголовок месяца */
+.fc .fc-toolbar-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dark .fc .fc-toolbar-title {
+    color: #e5e7eb;
+}
+
+/* Дни недели */
+.fc .fc-col-header-cell {
+    padding: 8px 0;
+    background: transparent;
+    border-color: #e5e7eb;
+}
+
+.dark .fc .fc-col-header-cell {
+    border-color: #374151;
+}
+
+.fc .fc-col-header-cell-cushion {
+    padding: 8px;
+    color: #6b7280;
+    text-transform: capitalize;
+}
+
+.dark .fc .fc-col-header-cell-cushion {
+    color: #9ca3af;
+}
+
+/* Ячейки дней */
+.fc .fc-daygrid-day {
+    min-height: 100px;
+    background: white;
+}
+
+.dark .fc .fc-daygrid-day {
+    background: #1f2937;
+}
+
+.fc .fc-daygrid-day-frame {
+    padding: 4px;
+}
+
+.fc .fc-daygrid-day-number {
+    font-size: 1.1em;
+    padding: 8px;
+    color: #111827;
+}
+
+.dark .fc .fc-daygrid-day-number {
+    color: #e5e7eb;
+}
+
+/* Сегодняшний день */
+.fc .fc-day-today {
+    background: rgba(59, 130, 246, 0.05) !important;
+}
+
+.dark .fc .fc-day-today {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Дни другого месяца */
+.fc .fc-day-other {
+    background: #f9fafb;
+}
+
+.dark .fc .fc-day-other {
+    background: #111827;
+}
+
+.fc .fc-day-other .fc-daygrid-day-number {
+    color: #9ca3af;
+    opacity: 0.5;
+}
+
+.dark .fc .fc-day-other .fc-daygrid-day-number {
+    color: #4b5563;
+}
+
+/* События */
+.fc-event-main-frame {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    min-height: 24px;
+}
+
+.fc-event-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.fc-event-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dark .fc-event-title {
+    color: #f3f4f6;
+}
+
+.fc-event-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.dark .fc-event-time {
+    color: #9ca3af;
+}
+
+/* Стили для наведения на события */
+.fc-event:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .fc-event:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Кнопки навигации */
+.fc .fc-button {
+    background: transparent !important;
+    border: 1px solid #e5e7eb !important;
+    color: #4b5563 !important;
+    padding: 8px 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.dark .fc .fc-button {
+    border-color: #374151 !important;
+    color: #9ca3af !important;
+}
+
+.fc .fc-button:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #111827 !important;
+}
+
+.dark .fc .fc-button:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+}
+
+.fc .fc-button-active {
+    background-color: #e5e7eb !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+}
+
+.dark .fc .fc-button-active {
+    background-color: #374151 !important;
+    color: #fff !important;
+    border-color: #4b5563 !important;
+}
+
+/* Разделители */
+.fc td, .fc th {
+    border-color: #e5e7eb;
+}
+
+.dark .fc td, .dark .fc th {
+    border-color: #374151;
+}
+
+/* Выходные дни */
+.fc .fc-day-sat, .fc .fc-day-sun {
+    background: #f9fafb;
+}
+
+.dark .fc .fc-day-sat, .dark .fc .fc-day-sun {
+    background: #111827;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .fc .fc-toolbar-title {
+        font-size: 1.5em;
+    }
+    
+    .fc .fc-daygrid-day {
+        min-height: 80px;
+    }
+}
+
+/* Дополнительные стили для темной темы */
+/* Фон всего календаря */
+.dark .fc-view-harness {
+    background: #1f2937;
+}
+
+/* Стили для недельного вида */
+.dark .fc-timegrid {
+    background: #1f2937;
+}
+
+.dark .fc-timegrid-body {
+    background: #1f2937;
+}
+
+.dark .fc-timegrid-col {
+    background: #1f2937;
+}
+
+/* Время в недельном виде */
+.dark .fc-timegrid-slot-label {
+    color: #9ca3af;
+    background: #1f2937;
+}
+
+/* Заголовки в недельном виде */
+.dark .fc-timegrid-axis-cushion {
+    color: #9ca3af;
+}
+
+.dark .fc-timegrid-slot-label-cushion {
+    color: #9ca3af;
+}
+
+/* События */
+.dark .fc-event {
+    background-color: #3b82f6;
+    border-color: #2563eb;
+}
+
+.dark .fc-event-title {
+    color: #fff;
+}
+
+.dark .fc-event-time {
+    color: #fff;
+}
+
+/* Сегодняшняя колонка в недельном виде */
+.dark .fc-timegrid-col.fc-day-today {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Hover эффекты */
+.dark .fc-daygrid-day:hover {
+    background: #374151;
+}
+
+/* Текущее время */
+.dark .fc-timegrid-now-indicator-line {
+    border-color: #ef4444;
+}
+
+.dark .fc-timegrid-now-indicator-arrow {
+    border-color: #ef4444;
+}
+
+/* Заголовок в недельном виде */
+.dark .fc-col-header {
+    background: #1f2937;
+}
+
+/* Боковая панель времени */
+.dark .fc-timegrid-axis {
+    background: #1f2937;
+}
+
+/* Ячейки времени */
+.dark .fc-timegrid-slot {
+    background: #1f2937;
+}
+
+/* Границы ячеек */
+.dark .fc-scrollgrid {
+    border-color: #374151;
+}
+
+.dark .fc-scrollgrid td {
+    border-color: #374151;
+}
+
+/* Фон для нерабочих дней */
+.dark .fc-day-disabled {
+    background: #111827;
+}
+
+/* Стили для кнопок в тулбаре */
+.dark .fc-toolbar button {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+}
+
+.dark .fc-toolbar button:hover {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #fff !important;
+}
+
+.dark .fc-toolbar button.fc-button-active {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #fff !important;
+}
+
+/* Стили для всплывающих подсказок */
+.dark .fc-popover {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.dark .fc-popover-header {
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+.dark .fc-popover-body {
+    color: #e5e7eb;
+}
+
+/* Стили для more ссылки */
+.dark .fc-daygrid-more-link {
+    color: #60a5fa;
+}
+
+/* Стили для временной шкалы */
+.dark .fc-timegrid-axis-frame {
+    color: #9ca3af;
+}
+
+/* Стили для выделения при наведении */
+.dark .fc-highlight {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Стили для разделителей в заголовке */
+.dark .fc-toolbar.fc-header-toolbar {
+    border-bottom-color: #374151;
+}
+
+/* Стили для фона событий */
+.dark .fc-bg-event {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Стили для нерабочих часов */
+.dark .fc-nonbusiness {
+    background: #111827;
+}
+</style>
+{% endblock %}

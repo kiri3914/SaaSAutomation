@@ -1,0 +1,51 @@
+/* Стили для карточек KPI */
+.kpi-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-all duration-200;
+}
+
+.kpi-card:hover {
+    @apply shadow-lg transform -translate-y-1;
+}
+
+/* Стили для графиков */
+.chart-container {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 h-96;
+}
+
+/* Стили для карты */
+.map-container {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6;
+    height: 400px;
+}
+
+/* Стили для уведомлений */
+.notification-item {
+    @apply p-4 rounded-lg transition-colors duration-200;
+}
+
+.notification-item:hover {
+    @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.notification-high {
+    @apply border-l-4 border-red-500;
+}
+
+.notification-medium {
+    @apply border-l-4 border-yellow-500;
+}
+
+.notification-low {
+    @apply border-l-4 border-green-500;
+}
+
+/* Стили для фильтров */
+.filter-container {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6;
+}
+
+.filter-select {
+    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm 
+           focus:border-indigo-500 focus:ring-indigo-500 
+           dark:bg-gray-700 dark:border-gray-600;
+} 

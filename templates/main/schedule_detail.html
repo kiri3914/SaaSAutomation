@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ schedule.title }}{% endblock %}
+
+{% block extra_head %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<link href="{% static 'css/calendar.css' %}" rel="stylesheet" />
+<link href="{% static 'css/schedule-common.css' %}" rel="stylesheet" />
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ru.js'></script>
+<script src="{% static 'js/schedule-utils.js' %}"></script>
+<script src="{% static 'js/schedule-detail.js' %}"></script>
+
+<script>
+    window.SCHEDULE_ID = "{{ schedule_id }}";
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-content">
+        <div id="schedule-container" class="card">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <span id="schedule-title">Загрузка...</span>
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400" id="schedule-description"></p>
+                </div>
+                <div class="flex space-x-3" id="schedule-actions"></div>
+            </div>
+
+            <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
+                <div class="mb-8">
+                    <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Календарь занятости</h4>
+                    <div id="calendar"></div>
+                </div>
+                <div id="schedule-details"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getEditUrl(scheduleType, scheduleId) {
+    switch(scheduleType) {
+        case 'weekly':
+            return `/schedule/${scheduleId}/edit/weekly/`;
+        case 'single':
+            return `/schedule/${scheduleId}/edit/single/`;
+        case 'flexible':
+            return `/schedule/${scheduleId}/edit/flexible/`;
+        default:
+            return `/schedule/${scheduleId}/edit/`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    new ScheduleDetail(window.SCHEDULE_ID);
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Курсы{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Курсы</h1>
+    <a href="{% url 'course_create' %}" class="btn btn-primary">Создать курс</a>
+</div>
+
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ course.title }}</h5>
+                <p class="card-text">
+                    <strong>Направление:</strong> {{ course.direction }}<br>
+                    <strong>Дата начала:</strong> {{ course.date_start }}<br>
+                    <strong>Студентов:</strong> {{ course.count_active_students }}
+                </p>
+                <a href="{% url 'course_detail' course.id %}" class="btn btn-info">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Редактирование студента{% else %}Создание студента{% endif %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <div class="mb-8">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li><a href="{% url 'dashboard' %}" class="text-gray-500 hover:text-gray-700">Дашборд</a></li>
+                    {% if form.course %}
+                    <li>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <a href="{% url 'course_detail' form.course_instance.id %}" class="text-gray-500 hover:text-gray-700">
+                            {{ form.course_instance.title }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <span class="text-gray-900">{% if is_edit %}Редактирование студента{% else %}Создание студента{% endif %}</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                {% if is_edit %}Редактирование студента{% else %}Создание студента{% endif %}
+            </h1>
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Основная информация -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.full_name.label }}
+                        </label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.course.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.course.label }}
+                        </label>
+                        {{ form.course }}
+                        {% if form.course.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.course.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Контактная информация -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.phone.label }}
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.whatsapp.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.whatsapp.label }}
+                        </label>
+                        {{ form.whatsapp }}
+                        {% if form.whatsapp.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.whatsapp.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.telegram.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.telegram.label }}
+                        </label>
+                        {{ form.telegram }}
+                        {% if form.telegram.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.telegram.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Email и месяц начала -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.start_mount.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.start_mount.label }}
+                        </label>
+                        {{ form.start_mount }}
+                        {% if form.start_mount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.start_mount.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.recruiter.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.recruiter.label }}
+                        </label>
+                        {{ form.recruiter }}
+                        {% if form.recruiter.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.recruiter.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Скидки -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.discount.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.discount.label }}
+                        </label>
+                        {{ form.discount }}
+                        {% if form.discount.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.discount.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.discount_of_cash.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.discount_of_cash.label }}
+                        </label>
+                        {{ form.discount_of_cash }}
+                        {% if form.discount_of_cash.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.discount_of_cash.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Комментарий -->
+                <div>
+                    <label for="{{ form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.comment.label }}
+                    </label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.comment.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Договор -->
+                <div>
+                    {{ form.contract }}
+                    <label for="{{ form.contract.id_for_label }}" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.contract.label }}
+                    </label>
+                </div>
+                {% if is_edit %}
+                {% else %}
+                <!-- Оплата -->
+                <div>
+                    <label for="{{ form.payment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.payment.label }}
+                    </label>
+                    {{ form.payment }}
+                    {% if form.payment.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.payment.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.payment_comment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.payment_comment.label }}
+                    </label>
+                    {{ form.payment_comment }}
+                </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                <div class="rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Ошибки валидации:
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="flex justify-end mt-6">
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        {% if is_edit %}
+                            Сохранить изменения
+                        {% else %}
+                            Создать студента
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

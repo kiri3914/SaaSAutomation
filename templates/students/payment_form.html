@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Редактирование оплаты{% else %}Добавление оплаты{% endif %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <div class="mb-8">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li><a href="{% url 'dashboard' %}" class="text-gray-500 hover:text-gray-700">Дашборд</a></li>
+                    <li>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <a href="{% url 'course_detail' student.course.pk %}" class="text-gray-500 hover:text-gray-700">
+                            {{ student.course.title }}
+                        </a>
+                    </li>
+                    <li>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <a href="{% url 'student_detail' student.id %}" class="text-gray-500 hover:text-gray-700">
+                            {{ student.full_name }}
+                        </a>
+                    </li>
+                    <li>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <span class="text-gray-900">{% if is_edit %}Редактирование оплаты{% else %}Добавление оплаты{% endif %}</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {% if is_edit %}Редактирование оплаты{% else %}Добавление оплаты{% endif %}
+                </h1>
+                <p class="mt-2 text-sm text-gray-500">
+                    Студент: {{ student.full_name }}
+                </p>
+                <div class="mt-1 grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Остаток к оплате</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">
+                            {{ student.remainder|floatformat:2 }} {{ student.currency }}
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Уже оплачено</p>
+                        <p class="text-lg font-bold text-green-600 dark:text-green-400">
+                            {{ student.payment|floatformat:2 }} {{ student.currency }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="{{ form.sum.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.sum.label }}
+                    </label>
+                    {{ form.sum }}
+                    {% if form.sum.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.sum.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.comment.label }}
+                    </label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.comment.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.payment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.payment.label }}
+                    </label>
+                    {{ form.payment }}
+                </div>
+
+                <div>
+                    <label for="{{ form.payment_comment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ form.payment_comment.label }}
+                    </label>
+                    {{ form.payment_comment }}
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        {% if is_edit %}
+                            Сохранить изменения
+                        {% else %}
+                            Добавить оплату
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

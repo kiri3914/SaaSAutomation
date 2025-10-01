@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Наборы{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Общая статистика -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Общая статистика наборов</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Активных курсов</p>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white" id="total-courses">{{ total_courses }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Текущих студентов</p>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white" id="total-current-students">{{ total_current_students }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Нужно набрать</p>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white" id="total-students-needed">{{ total_students_needed }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">План на неделю</p>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white" id="total-weekly-goal">{{ total_weekly_goal }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Общий прогресс</p>
+                    <div class="flex items-center">
+                        <p class="text-lg font-medium text-gray-900 dark:text-white" id="overall-progress">{{ overall_progress }}%</p>
+                        <div class="w-24 h-2 bg-gray-200 rounded-full ml-2">
+                            <div id="progress-bar" class="h-2 rounded-full {% if overall_progress >= 75 %}bg-green-600{% elif overall_progress >= 50 %}bg-yellow-600{% else %}bg-blue-600{% endif %}" 
+                                 style="width: {{ overall_progress }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Фильтр филиалов и кнопка сброса -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Наборы студентов</h1>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Текущие наборы и планы по набору студентов
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="reset-removed" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Сбросить убранные курсы</button>
+                {% if user.is_superuser %}
+                <select 
+                    class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    onchange="window.location.href='?branch_id=' + this.value"
+                >
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if branch.id == selected_branch_id %}selected{% endif %}>
+                        {{ branch.city }} - {{ branch.address }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Карточки курсов с drag-and-drop -->
+        <div id="sortable-courses" class="grid gap-6 mb-8 md:grid-cols-2">
+            {% for plan in recruitment_plans %}
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 {% if plan.weeks_left <= 1 and plan.progress_percentage < 50 %}border-2 border-red-500{% endif %}" 
+                 draggable="true" data-course-id="{{ plan.course.id }}"
+                 data-current-students="{{ plan.current_students }}"
+                 data-students-needed="{{ plan.students_needed }}"
+                 data-weekly-goal="{{ plan.weekly_goal }}">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ plan.course.title }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Старт: {{ plan.course.date_start|date:"d.m.Y" }}
+                            (осталось {{ plan.weeks_left }} нед.)
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="close-recruitment bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" data-course-id="{{ plan.course.id }}">Убрать из набора</button>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if plan.progress_percentage >= 75 %}bg-green-100 text-green-800{% elif plan.progress_percentage >= 50 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ plan.current_students }}/{{ MAX_GROUP_SIZE }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 mb-1">
+                    Прогресс: {{ plan.progress_percentage }}% ({{ plan.current_students }} из {{ MAX_GROUP_SIZE }})
+                </div>
+
+                <div class="relative w-full h-3.5 bg-gray-200 rounded-full dark:bg-gray-700 mb-4">
+                    <div class="absolute top-0 left-0 h-3.5 rounded-full {% if plan.progress_percentage >= 75 %}bg-green-600{% elif plan.progress_percentage >= 50 %}bg-yellow-600{% else %}bg-blue-600{% endif %}"
+                         style="width: {{ plan.progress_percentage }}%">
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">План набора (все недели):</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        {% for week in plan.weeks_breakdown %}
+                        <div class="text-center p-2 rounded {% if week.actual >= week.target %}bg-green-50 dark:bg-green-900{% elif week.actual < week.target %}bg-red-50 dark:bg-red-900{% else %}bg-gray-50 dark:bg-gray-700{% endif %}">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ week.start_date|date:"d.m" }} - {{ week.end_date|date:"d.m" }}
+                            </div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{ week.actual }} → {{ week.target }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="h-32 w-full mt-4">
+                        <canvas id="planChart-{{ plan.course.id }}"></canvas>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
+                    <div class="flex justify-between items-center">
+                        <span>Текущий набор: <span class="font-medium">{{ plan.current_students }}</span> студентов</span>
+                        <span>Цель: <span class="font-medium">{{ MAX_GROUP_SIZE }}</span> студентов</span>
+                    </div>
+                    <div class="mt-1">
+                        Нужно набрать еще: <span class="font-medium">{{ plan.students_needed }}</span> студентов
+                        ({{ plan.weekly_goal }} в неделю)
+                    </div>
+                    {% if plan.weeks_left <= 1 and plan.progress_percentage < 50 %}
+                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">
+                        Срочно набрать {{ plan.students_needed }} студентов!
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Скрипты -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация графиков
+    {% for plan in recruitment_plans %}
+    const ctx{{ plan.course.id }} = document.getElementById('planChart-{{ plan.course.id }}').getContext('2d');
+    new Chart(ctx{{ plan.course.id }}, {
+        type: 'line',
+        data: {
+            labels: [{% for week in plan.weeks_breakdown %}'Неделя {{ week.week }}',{% endfor %}],
+            datasets: [
+                {
+                    label: 'Факт',
+                    data: [{% for week in plan.weeks_breakdown %}{{ week.actual }},{% endfor %}],
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'План',
+                    data: [{% for week in plan.weeks_breakdown %}{{ week.target }},{% endfor %}],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    title: { display: true, text: 'Студенты' },
+                    ticks: { stepSize: 1 }
+                },
+                x: { 
+                    title: { display: true, text: 'Недели' },
+                    ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+                }
+            },
+            plugins: { 
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw} студентов`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endfor %}
+
+    // Начальные данные статистики
+    let stats = {
+        totalCourses: {{ total_courses }},
+        totalCurrentStudents: {{ total_current_students }},
+        totalStudentsNeeded: {{ total_students_needed }},
+        totalWeeklyGoal: {{ total_weekly_goal }},
+        maxGroupSize: {{ MAX_GROUP_SIZE }}
+    };
+
+    // Функция обновления статистики
+    function updateStats() {
+        document.getElementById('total-courses').textContent = stats.totalCourses;
+        document.getElementById('total-current-students').textContent = stats.totalCurrentStudents;
+        document.getElementById('total-students-needed').textContent = stats.totalStudentsNeeded;
+        document.getElementById('total-weekly-goal').textContent = stats.totalWeeklyGoal;
+        
+        const overallProgress = stats.totalCourses > 0 ? 
+            Math.round((stats.totalCurrentStudents * 100) / (stats.totalCourses * stats.maxGroupSize)) : 0;
+        document.getElementById('overall-progress').textContent = `${overallProgress}%`;
+        
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = `${overallProgress}%`;
+        progressBar.className = 'h-2 rounded-full ' + (
+            overallProgress >= 75 ? 'bg-green-600' : 
+            overallProgress >= 50 ? 'bg-yellow-600' : 'bg-blue-600'
+        );
+    }
+
+    // Загрузка убранных курсов из localStorage
+    let removedCourses = JSON.parse(localStorage.getItem('removedCourses')) || [];
+    removedCourses.forEach(courseId => {
+        const element = document.querySelector(`[data-course-id="${courseId}"]`);
+        if (element) {
+            stats.totalCourses -= 1;
+            stats.totalCurrentStudents -= parseInt(element.dataset.currentStudents);
+            stats.totalStudentsNeeded -= parseInt(element.dataset.studentsNeeded);
+            stats.totalWeeklyGoal -= parseInt(element.dataset.weeklyGoal);
+            element.remove();
+        }
+    });
+    updateStats();
+
+    // Drag-and-drop с SortableJS (только визуально)
+    const sortableContainer = document.getElementById('sortable-courses');
+    new Sortable(sortableContainer, {
+        animation: 150,
+        handle: '.bg-white',
+        onEnd: function(evt) {
+            const courseIds = Array.from(sortableContainer.children).map(item => item.dataset.courseId);
+            console.log('New order:', courseIds);
+        }
+    });
+
+    // Убрать из набора (визуально с сохранением в localStorage)
+    document.querySelectorAll('.close-recruitment').forEach(button => {
+        button.addEventListener('click', function() {
+            const courseId = this.dataset.courseId;
+            if (confirm('Убрать этот курс из набора? (Изменения не сохранятся в базе)')) {
+                const courseElement = document.querySelector(`[data-course-id="${courseId}"]`);
+                if (courseElement) {
+                    stats.totalCourses -= 1;
+                    stats.totalCurrentStudents -= parseInt(courseElement.dataset.currentStudents);
+                    stats.totalStudentsNeeded -= parseInt(courseElement.dataset.studentsNeeded);
+                    stats.totalWeeklyGoal -= parseInt(courseElement.dataset.weeklyGoal);
+                    courseElement.remove();
+                    if (!removedCourses.includes(courseId)) {
+                        removedCourses.push(courseId);
+                        localStorage.setItem('removedCourses', JSON.stringify(removedCourses));
+                    }
+                    updateStats();
+                }
+            }
+        });
+    });
+
+    // Сброс убранных курсов
+    document.getElementById('reset-removed').addEventListener('click', function() {
+        if (confirm('Вернуть все убранные курсы?')) {
+            localStorage.removeItem('removedCourses');
+            location.reload();
+        }
+    });
+});
+</script>
+{% endblock %}

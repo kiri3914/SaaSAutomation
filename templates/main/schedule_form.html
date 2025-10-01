@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if schedule %}Редактирование{% else %}Новый график{% endif %}{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {% if schedule %}Редактирование графика{% else %}Новый график{% endif %}
+        </h3>
+    </div>
+    <div class="border-t border-gray-200 dark:border-gray-700">
+        <form method="post" class="space-y-6 p-6">
+            {% csrf_token %}
+            
+            <!-- Основная информация -->
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Название
+                </label>
+                <div class="mt-1">
+                    <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" required
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 
+                                  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                {% if form.title.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Описание
+                </label>
+                <div class="mt-1">
+                    <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="3"
+                              class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+                                     focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                </div>
+            </div>
+
+            <!-- Тип графика -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Тип графика</label>
+                <div class="mt-2 space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                    {% for value, text in form.schedule_type.field.choices %}
+                        <div class="flex items-center">
+                            <input type="radio" name="{{ form.schedule_type.name }}" value="{{ value }}" 
+                                   id="schedule_type_{{ value }}" {% if forloop.first %}checked{% endif %}
+                                   class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600
+                                          dark:bg-gray-700 dark:checked:bg-indigo-600">
+                            <label for="schedule_type_{{ value }}" 
+                                   class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ text }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Дополнительные поля в зависимости от типа -->
+            <div id="weekly-fields" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Дата начала</label>
+                        <input type="date" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm
+                                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Дата окончания</label>
+                        <input type="date" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm
+                                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Дни недели -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Дни недели</label>
+                    <div class="mt-2 grid grid-cols-7 gap-2">
+                        {% for ws_form in weekly_formset %}
+                            <div class="flex flex-col items-center">
+                                <input type="checkbox" name="{{ ws_form.weekday.name }}" value="{{ forloop.counter0 }}"
+                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600
+                                              dark:bg-gray-700 dark:checked:bg-indigo-600">
+                                <span class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                                    {{ ws_form.weekday.label }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Время -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Время начала</label>
+                        <input type="time" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm
+                                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Время окончания</label>
+                        <input type="time" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm
+                                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'index' %}" 
+                   class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 
+                          bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Отмена
+                </a>
+                <button type="submit"
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white 
+                               bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {% if schedule %}Сохранить{% else %}Создать{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация Flatpickr для полей даты и времени
+    flatpickr("input[type=date]", {
+        dateFormat: "Y-m-d",
+        locale: "ru",
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    });
+
+    flatpickr("input[type=time]", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        locale: "ru",
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    });
+});
+</script>
+{% endblock %} 

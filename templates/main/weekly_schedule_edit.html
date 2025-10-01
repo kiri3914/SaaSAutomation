@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редактирование недельного графика{% endblock %}
+
+{% block extra_head %}
+<script>
+    // Определяем глобальную переменную для ID графика
+    window.SCHEDULE_ID = "{{ schedule_id }}";
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Редактирование недельного графика</h1>
+        
+        <div class="mt-6 bg-white dark:bg-gray-800 shadow px-4 py-5 sm:rounded-lg sm:p-6">
+            <form method="post" id="weekly-schedule-edit-form">
+                {% csrf_token %}
+                <div class="space-y-6">
+                    <!-- Основная информация -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Основная информация</h3>
+                        <div class="mt-4 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Название
+                                </label>
+                                <input type="text" name="title" required id="title"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+                            </div>
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Описание
+                                </label>
+                                <textarea name="description" rows="3" id="description"
+                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Расписание на неделю -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Расписание на неделю</h3>
+                        <div class="mt-4 space-y-4" id="weekly-slots">
+                            <!-- JavaScript будет добавлять слоты здесь -->
+                        </div>
+                        <button type="button" id="add-slot"
+                                class="mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+                            Добавить день
+                        </button>
+                    </div>
+
+                    <!-- Период действия -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Период действия</h3>
+                        <div class="mt-4 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Дата начала
+                                </label>
+                                <input type="date" name="start_date" required id="start_date"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Дата окончания
+                                </label>
+                                <input type="date" name="end_date" required id="end_date"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a href="{% url 'schedule_detail' schedule_id %}"
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Отмена
+                    </a>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="slot-template">
+    <div class="flex items-center space-x-4">
+        <select name="weekday[]" class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+            <option value="0">Понедельник</option>
+            <option value="1">Вторник</option>
+            <option value="2">Среда</option>
+            <option value="3">Четверг</option>
+            <option value="4">Пятница</option>
+            <option value="5">Суббота</option>
+            <option value="6">Воскресенье</option>
+        </select>
+        <input type="time" name="start_time[]" required
+               class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+        <input type="time" name="end_time[]" required
+               class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600">
+        <button type="button" class="remove-slot text-red-600 hover:text-red-800">
+            Удалить
+        </button>
+    </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleId = window.SCHEDULE_ID; // Используем глобальную переменную
+    const weeklySlots = document.getElementById('weekly-slots');
+    const addSlotButton = document.getElementById('add-slot');
+    const slotTemplate = document.getElementById('slot-template');
+
+    function addSlot(data = null) {
+        const newSlot = slotTemplate.content.cloneNode(true).firstElementChild;
+        if (data) {
+            newSlot.querySelector('[name="weekday[]"]').value = data.weekday;
+            newSlot.querySelector('[name="start_time[]"]').value = data.start_time;
+            newSlot.querySelector('[name="end_time[]"]').value = data.end_time;
+        }
+        weeklySlots.appendChild(newSlot);
+    }
+
+    addSlotButton.addEventListener('click', () => addSlot());
+
+    weeklySlots.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-slot')) {
+            if (weeklySlots.children.length > 1) {
+                e.target.closest('.flex').remove();
+            }
+        }
+    });
+
+    // Загружаем данные графика
+    fetch(`/api/schedule/${scheduleId}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('title').value = data.title;
+            document.getElementById('description').value = data.description || '';
+            document.getElementById('start_date').value = data.weekly_schedules[0]?.start_date || '';
+            document.getElementById('end_date').value = data.weekly_schedules[0]?.end_date || '';
+            
+            if (data.weekly_schedules?.length > 0) {
+                data.weekly_schedules.forEach(ws => addSlot(ws));
+            } else {
+                addSlot();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+    // Обработка отправки формы
+    document.getElementById('weekly-schedule-edit-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('/api/schedule/save/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: JSON.stringify({
+                id: scheduleId,
+                title: formData.get('title'),
+                description: formData.get('description'),
+                schedule_type: 'weekly',
+                weekly_schedules: Array.from(weeklySlots.children).map(slot => ({
+                    weekday: slot.querySelector('[name="weekday[]"]').value,
+                    start_time: slot.querySelector('[name="start_time[]"]').value,
+                    end_time: slot.querySelector('[name="end_time[]"]').value,
+                    start_date: formData.get('start_date'),
+                    end_date: formData.get('end_date')
+                }))
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = `/schedule/${scheduleId}/`;
+            } else {
+                console.error(data.errors);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+</script>
+{% endblock %} 
