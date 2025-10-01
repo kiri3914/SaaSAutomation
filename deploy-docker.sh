@@ -58,16 +58,16 @@ sudo docker compose down 2>/dev/null || true
 
 # Создание папок
 log "Создаем необходимые папки..."
-mkdir -p logs staticfiles media
-chmod 777 logs staticfiles media
+mkdir -p logs static media
+chmod 777 logs static media
 
 # Получаем UID пользователя appuser из контейнера
 log "Настраиваем права доступа для логов..."
-CONTAINER_UID=$(sudo docker run --rm python:3.9-slim id -u appuser 2>/dev/null || echo "1000")
-CONTAINER_GID=$(sudo docker run --rm python:3.9-slim id -g appuser 2>/dev/null || echo "1000")
+CONTAINER_UID=$(sudo docker run --rm python:3.12-slim id -u appuser 2>/dev/null || echo "1000")
+CONTAINER_GID=$(sudo docker run --rm python:3.12-slim id -g appuser 2>/dev/null || echo "1000")
 
 # Устанавливаем правильного владельца для папок
-sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs staticfiles media
+sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs static media
 
 # Сборка и запуск контейнера
 log "Собираем и запускаем Docker контейнер..."
@@ -81,7 +81,7 @@ sleep 10
 # Проверяем, что контейнер запустился
 log "Проверяем статус контейнеров..."
 for i in {1..30}; do
-    if sudo docker-compose ps | grep -q "saas_automation_web.*Up"; then
+    if sudo docker compose ps | grep -q "saas_automation_web.*Up"; then
         log "Контейнер web запущен успешно"
         break
     else
@@ -111,8 +111,12 @@ done
 
 # Исправляем права на папки после запуска контейнера
 log "Исправляем права доступа после запуска контейнера..."
-sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs staticfiles media
-sudo chmod -R 755 logs staticfiles media
+sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs static media
+sudo chmod -R 755 logs static media
+
+# Создание миграций для всех приложений
+log "Создаем миграции для всех приложений..."
+sudo docker compose exec web python manage.py makemigrations --settings=core.settings_production
 
 # Применение миграций
 log "Применяем миграции базы данных..."
