@@ -47,7 +47,7 @@ packaging==24.2
 pandas==2.2.3
 pdfkit==1.0.0
 phonenumbers==8.13.55
-Pillow==9.1.0
+Pillow==10.4.0
 prompt_toolkit==3.0.50
 pycodestyle==2.10.0
 pycparser==2.22

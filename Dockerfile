@@ -12,6 +12,15 @@ RUN apt-get update \
         curl \
         wget \
         git \
+        zlib1g-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        liblcms2-dev \
+        libwebp-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libxcb1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем рабочую директорию
