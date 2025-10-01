@@ -134,11 +134,11 @@ User = get_user_model()
 if not User.objects.filter(is_superuser=True).exists():
     print("Создаем суперпользователя...")
     User.objects.create_superuser(
-        email='admin@saas-automation.com',
+        username='admin',
         password='admin123',
-        username='admin'
+        email='admin@saas-automation.com'
     )
-    print("Суперпользователь создан: admin@saas-automation.com / admin123")
+    print("Суперпользователь создан: admin / admin123")
 else:
     print("Суперпользователь уже существует")
 PYTHON_EOF
