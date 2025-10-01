@@ -54,7 +54,7 @@ fi
 
 # Остановка существующих контейнеров
 log "Останавливаем существующие контейнеры..."
-sudo docker-compose down 2>/dev/null || true
+sudo docker compose down 2>/dev/null || true
 
 # Создание папок
 log "Создаем необходимые папки..."
@@ -71,8 +71,8 @@ sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs staticfiles media
 
 # Сборка и запуск контейнера
 log "Собираем и запускаем Docker контейнер..."
-sudo docker-compose build
-sudo docker-compose up -d
+sudo docker compose build
+sudo docker compose up -d
 
 # Ждем запуска контейнера
 log "Ждем запуска контейнера..."
@@ -91,16 +91,16 @@ for i in {1..30}; do
 done
 
 # Дополнительная проверка
-if ! sudo docker-compose ps | grep -q "saas_automation_web.*Up"; then
+if ! sudo docker compose ps | grep -q "saas_automation_web.*Up"; then
     error "Контейнер web не запустился. Проверьте логи:"
-    sudo docker-compose logs web
+    sudo docker compose logs web
     exit 1
 fi
 
 # Ждем готовности базы данных
 log "Ждем готовности базы данных..."
 for i in {1..20}; do
-    if sudo docker-compose exec web python -c "import django; django.setup(); from django.db import connection; connection.ensure_connection()" 2>/dev/null; then
+    if sudo docker compose exec web python -c "import django; django.setup(); from django.db import connection; connection.ensure_connection()" 2>/dev/null; then
         log "База данных готова"
         break
     else
@@ -116,15 +116,15 @@ sudo chmod -R 755 logs staticfiles media
 
 # Применение миграций
 log "Применяем миграции базы данных..."
-sudo docker-compose exec web python manage.py migrate --settings=core.settings_production
+sudo docker compose exec web python manage.py migrate --settings=core.settings_production
 
 # Сбор статических файлов
 # log "Собираем статические файлы..."
-# sudo docker-compose exec web python manage.py collectstatic --noinput --settings=core.settings_production
+# sudo docker compose exec web python manage.py collectstatic --noinput --settings=core.settings_production
 
 # Создание суперпользователя (если не существует)
 log "Проверяем суперпользователя..."
-sudo docker-compose exec web python manage.py shell --settings=core.settings_production << 'PYTHON_EOF'
+sudo docker compose exec web python manage.py shell --settings=core.settings_production << 'PYTHON_EOF'
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(is_superuser=True).exists():
@@ -141,7 +141,7 @@ PYTHON_EOF
 
 # Проверка конфигурации
 log "Проверяем конфигурацию Django..."
-sudo docker-compose exec web python manage.py check --settings=core.settings_production
+sudo docker compose exec web python manage.py check --settings=core.settings_production
 
 # Настройка nginx
 log "Настраиваем nginx..."
@@ -158,7 +158,7 @@ sudo systemctl reload nginx
 
 # Проверка статуса контейнера
 log "Проверяем статус контейнера..."
-sudo docker-compose ps
+sudo docker compose ps
 
 success "Деплой завершен!"
 log "Следующие шаги:"
@@ -170,5 +170,5 @@ echo "   http://45.156.22.93:8000"
 echo "   https://saas-automation.com (после SSL)"
 echo ""
 echo "3. Проверьте контейнер:"
-echo "   sudo docker-compose ps"
-echo "   sudo docker-compose logs -f web"
+echo "   sudo docker compose ps"
+echo "   sudo docker compose logs -f web"
