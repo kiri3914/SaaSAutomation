@@ -15,9 +15,17 @@ class RecruitmentView(LoginRequiredMixin, TemplateView):
         branch_id = self.request.GET.get('branch_id')
         
         if not branch_id:
-            branch_id = self.request.user.branch_id if self.request.user.branch_id else Branch.objects.first().id
+            if self.request.user.branch_id:
+                branch_id = self.request.user.branch_id
+            else:
+                first_branch = Branch.objects.first()
+                branch_id = first_branch.id if first_branch else None
         else:
             branch_id = int(branch_id)
+        
+        if branch_id is None:
+            context['error'] = 'Нет доступных филиалов'
+            return context
             
         active_recruitments = Course.objects.filter(
             branch_id=branch_id,

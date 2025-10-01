@@ -254,9 +254,11 @@ class DashboardView(UserPassesTestMixin, APIView):
             elif request.user.branch:
                 branch_id = request.user.branch.id
             else:
-                branch_id = Branch.objects.first().id
+                first_branch = Branch.objects.first()
+                branch_id = first_branch.id if first_branch else None
         except (ValueError, TypeError, Branch.DoesNotExist):
-            branch_id = Branch.objects.first().id
+            first_branch = Branch.objects.first()
+            branch_id = first_branch.id if first_branch else None
 
         force_refresh = request.GET.get('refresh') == 'true'
         dashboard_data = get_dashboard_data(branch_id, force_refresh)

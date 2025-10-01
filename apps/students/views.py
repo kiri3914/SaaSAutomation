@@ -44,9 +44,13 @@ def archive_student(request, pk):
 
 @login_required
 def create_contract(request, pk):
-    student = Student.objects.get(id=pk)
-    student.contract = True
-    student.save()
+    try:
+        student = Student.objects.get(id=pk)
+        student.contract = True
+        student.save()
+    except Student.DoesNotExist:
+        messages.error(request, 'Студент не найден')
+        return redirect('dashboard')
     messages.success(request, f'Вы подписали договор с {student.full_name}')
     return redirect('student_detail', pk=student.id)
 

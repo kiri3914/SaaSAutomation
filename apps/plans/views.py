@@ -33,9 +33,17 @@ class PlanningView(LoginRequiredMixin, TemplateView):
         
         # Если branch_id не указан, используем branch_id пользователя или первый филиал
         if not branch_id:
-            branch_id = self.request.user.branch_id if self.request.user.branch_id else Branch.objects.first().id
+            if self.request.user.branch_id:
+                branch_id = self.request.user.branch_id
+            else:
+                first_branch = Branch.objects.first()
+                branch_id = first_branch.id if first_branch else None
         else:
             branch_id = int(branch_id)
+        
+        if branch_id is None:
+            context['error'] = 'Нет доступных филиалов'
+            return context
             
         # Преобразуем direction_id в целое число, если он есть
         if direction_id:
@@ -56,8 +64,11 @@ class PlanningView(LoginRequiredMixin, TemplateView):
         
         # Фильтруем по направлению если выбрано
         if direction_id:
-            direction = Direction.objects.get(id=direction_id)
-            all_courses = [course for course in all_courses if direction.title in course]
+            try:
+                direction = Direction.objects.get(id=direction_id)
+                all_courses = [course for course in all_courses if direction.title in course]
+            except Direction.DoesNotExist:
+                pass  # Игнорируем несуществующее направление
         
         # Фильтруем скрытые курсы
         visible_courses = [course for course in all_courses if course not in hidden_courses]
@@ -175,7 +186,14 @@ def update_courses_order(request):
 def export_planning(request):
     branch_id = request.GET.get('branch_id')
     if not branch_id:
-        branch_id = request.user.branch_id if request.user.branch_id else Branch.objects.first().id
+        if request.user.branch_id:
+            branch_id = request.user.branch_id
+        else:
+            first_branch = Branch.objects.first()
+            branch_id = first_branch.id if first_branch else None
+    
+    if branch_id is None:
+        return JsonResponse({'error': 'Нет доступных филиалов'}, status=400)
     
     # Получаем скрытые курсы для филиала
     session_key = f'hidden_courses_{branch_id}'

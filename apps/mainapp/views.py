@@ -22,9 +22,13 @@ from .forms import CourseForm
 
 @login_required
 def course_edit(request, pk):
-    course = Course.objects.get(id=pk)
-    if not request.user.is_superuser and course.branch != request.user.branch:
-        raise PermissionDenied
+    try:
+        course = Course.objects.get(id=pk)
+        if not request.user.is_superuser and course.branch != request.user.branch:
+            raise PermissionDenied
+    except Course.DoesNotExist:
+        messages.error(request, 'Курс не найден')
+        return redirect('dashboard')
     if request.method == 'POST':
         print("POST data:", request.POST)  # Отладочная информация
         form = CourseForm(user=request.user, data=request.POST, instance=course)
@@ -46,16 +50,23 @@ def course_edit(request, pk):
     return render(request, 'mainapp/course_form.html', {'form': form, 'course': course})
 @login_required
 def course_delete(request, pk):
-    course = Course.objects.get(id=pk)
-    course.delete()
+    try:
+        course = Course.objects.get(id=pk)
+        course.delete()
+        messages.success(request, 'Курс успешно удален')
+    except Course.DoesNotExist:
+        messages.error(request, 'Курс не найден')
     return redirect('dashboard')
 @login_required
 def finish_course(request, pk):
-    course = Course.objects.get(id=pk)
-    course.is_active = False
-    course.save()
-    messages.success(request, f'Курс {course.title} успешно завершен')
-    return redirect('course_detail', pk=course.id)
+    try:
+        course = Course.objects.get(id=pk)
+        course.is_active = False
+        course.save()
+        messages.success(request, 'Курс успешно завершен')
+    except Course.DoesNotExist:
+        messages.error(request, 'Курс не найден')
+    return redirect('dashboard')
 
 @login_required
 def course_create(request):

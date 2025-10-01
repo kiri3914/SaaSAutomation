@@ -25,11 +25,23 @@ class StatisticsView(LoginRequiredMixin, TemplateView):
         branch_id = self.request.GET.get('branch_id')
         
         if not branch_id:
-            branch_id = self.request.user.branch_id if self.request.user.branch_id else Branch.objects.first().id
+            if self.request.user.branch_id:
+                branch_id = self.request.user.branch_id
+            else:
+                first_branch = Branch.objects.first()
+                branch_id = first_branch.id if first_branch else None
         else:
             branch_id = int(branch_id)
-            
-        branch = Branch.objects.get(id=branch_id)
+        
+        if branch_id is None:
+            context['error'] = 'Нет доступных филиалов'
+            return context
+        
+        try:
+            branch = Branch.objects.get(id=branch_id)
+        except Branch.DoesNotExist:
+            context['error'] = 'Филиал не найден'
+            return context
         current_month = datetime.now().month
         current_year = datetime.now().year
         current_date = timezone.now()
