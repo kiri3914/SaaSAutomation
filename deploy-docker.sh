@@ -114,10 +114,6 @@ log "Исправляем права доступа после запуска к
 sudo chown -R $CONTAINER_UID:$CONTAINER_GID logs static media
 sudo chmod -R 755 logs static media
 
-# Сброс и пересоздание миграций
-log "Сбрасываем миграции и создаем заново..."
-sudo docker compose exec web python manage.py migrate --fake-initial --settings=core.settings_production
-
 # Создание миграций для всех приложений
 log "Создаем миграции для всех приложений..."
 sudo docker compose exec web python manage.py makemigrations --settings=core.settings_production
