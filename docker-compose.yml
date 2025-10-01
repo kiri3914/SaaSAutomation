@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: saas_automation_web
+    ports:
+      - "8001:8001"  # Порт 8001 для SaaSAutomation
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - ./media:/app/media
+      - .env:/app/.env
+      - ./logs:/app/logs
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings_production
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - saas_automation_network
+
+  db:
+    image: postgres:15-alpine
+    container_name: saas_automation_db
+    ports:
+      - "5433:5432"  # Порт 5433 на хосте, 5432 в контейнере
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=saas_automation_db
+      - POSTGRES_USER=saas_automation
+      - POSTGRES_PASSWORD=saas_automation_12345
+    restart: unless-stopped
+    networks:
+      - saas_automation_network
+
+volumes:
+  static_volume:
+  postgres_data:
+
+networks:
+  saas_automation_network:
+    driver: bridge
