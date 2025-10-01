@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Client
 
-from ..utils.push_notification import send_message_telebot
+# from ..utils.push_notification import send_message_telebot
 
 
 @receiver(post_save, sender=Client)
@@ -16,4 +16,4 @@ def create_student(sender, instance, created, **kwargs):
                f"\nКомментарий: {instance.comment}"\
                f"\n\nС уважением, \nКоманда Itc service."
         chat_id = instance.trail_lesson.branch.chat_id
-        send_message_telebot(text=text, chat_id=chat_id)
+        # send_message_telebot(text=text, chat_id=chat_id)
