@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import Student, PaymentStudent
 
-from ..utils.push_notification import send_message_telebot
+# from ..utils.push_notification import send_message_telebot
 
 
 @receiver(post_save, sender=Student)
@@ -16,7 +16,7 @@ def create_student(sender, instance, created, **kwargs):
                f"\nКомментарий: {instance.comment}" \
                f"\n\nС уважением, \nКоманда Itc service."
         chat_id = instance.course.branch.chat_id
-        send_message_telebot(text=text, chat_id=chat_id)
+        # send_message_telebot(text=text, chat_id=chat_id)
 
 
 @receiver(post_save, sender=PaymentStudent)
@@ -31,7 +31,7 @@ def create_payment(sender, instance, created, **kwargs):
                f"\nКомментарий: {instance.comment}" \
                f"\n\nС уважением, \nКоманда Itc service."
         chat_id = instance.student.course.branch.chat_id
-        send_message_telebot(text=text, chat_id=chat_id)
+        # send_message_telebot(text=text, chat_id=chat_id)
 
 
 @receiver(post_delete, sender=Student)
@@ -41,7 +41,7 @@ def delete_student(sender, instance, **kwargs):
            f"\nКомментарий: {instance.comment}" \
            f"\n\nС уважением, \nКоманда Itc service."
     chat_id = instance.course.branch.chat_id
-    send_message_telebot(text=text, chat_id=chat_id)
+    # send_message_telebot(text=text, chat_id=chat_id)
 
 
 @receiver(post_save, sender=Student)
@@ -52,4 +52,4 @@ def off_student(sender, instance, created, **kwargs):
                f"\nКомментарий: {instance.comment}" \
                f"\n\nС уважением, \nКоманда Itc service."
         chat_id = instance.course.branch.chat_id
-        send_message_telebot(text=text, chat_id=chat_id)
+        # send_message_telebot(text=text, chat_id=chat_id)

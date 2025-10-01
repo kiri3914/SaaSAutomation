@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
 
-from apps.utils.push_notification import send_message_telebot
+# from apps.utils.push_notification import send_message_telebot
 
 
 class CourseManager(models.Manager):
@@ -26,7 +26,7 @@ class CourseManager(models.Manager):
             \n\nС уважением,\nКоманда {settings.PROJECT_NAME}'
             chat_id = course.branch.chat_id
             text = subject + '\n\n' + message
-            send_message_telebot(text=text, chat_id=chat_id)
+            # send_message_telebot(text=text, chat_id=chat_id)
 
     def get_upcoming_courses(self) -> list:
         today = now().date()
