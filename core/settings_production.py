@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
-    'django_crontab',
+    # 'django_crontab',  # отключено
     'import_export',
 ]
 
@@ -209,9 +209,9 @@ CSRF_TRUSTED_ORIGINS = [
     'http://45.156.22.93',
 ]
 
-# TELEGRAM_BOT_TOKEN
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CHAT_ID = os.getenv('CHAT_ID')
+# TELEGRAM_BOT_TOKEN (отключено)
+# TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# CHAT_ID = os.getenv('CHAT_ID')
 
 # EMAIL_BACKEND
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
@@ -222,10 +222,10 @@ EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
-# CRONJOBS
-CRONJOBS = [
-    ('30 3 * * *', 'apps.mainapp.cron.notify_push', f'>> {BASE_DIR}/logs/notify_logs/make_notify.log')
-]
+# CRONJOBS (отключено)
+# CRONJOBS = [
+#     ('30 3 * * *', 'apps.mainapp.cron.notify_push', f'>> {BASE_DIR}/logs/notify_logs/make_notify.log')
+# ]
 
 # JAZZMIN SETTINGS
 JAZZMIN_SETTINGS = {
