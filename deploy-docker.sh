@@ -81,7 +81,7 @@ sleep 10
 # Проверяем, что контейнер запустился
 log "Проверяем статус контейнеров..."
 for i in {1..30}; do
-    if sudo docker-compose ps | grep -q "saas_automation_web_1.*Up"; then
+    if sudo docker-compose ps | grep -q "saas_automation_web.*Up"; then
         log "Контейнер web запущен успешно"
         break
     else
@@ -91,7 +91,7 @@ for i in {1..30}; do
 done
 
 # Дополнительная проверка
-if ! sudo docker-compose ps | grep -q "saas_automation_web_1.*Up"; then
+if ! sudo docker-compose ps | grep -q "saas_automation_web.*Up"; then
     error "Контейнер web не запустился. Проверьте логи:"
     sudo docker-compose logs web
     exit 1
@@ -166,7 +166,7 @@ echo "1. Настройте SSL сертификат:"
 echo "   sudo certbot --nginx -d saas-automation.com"
 echo ""
 echo "2. Проверьте работу сайта:"
-echo "   http://45.156.22.93:8001"
+echo "   http://45.156.22.93:8000"
 echo "   https://saas-automation.com (после SSL)"
 echo ""
 echo "3. Проверьте контейнер:"

@@ -1,7 +1,7 @@
 # Dockerfile для SaaSAutomation Django приложения
-# Используем Python 3.9 и PostgreSQL
+# Используем Python 3.12 и PostgreSQL 17
 
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # Устанавливаем системные зависимости
 RUN apt-get update \
@@ -32,10 +32,10 @@ RUN adduser --disabled-password --gecos '' appuser \
 USER appuser
 
 # Создаем папки для логов и статических файлов
-RUN mkdir -p /app/logs /app/staticfiles /app/media
+RUN mkdir -p /app/logs /app/static /app/media
 
-# Открываем порт 8001 (не 8000!)
-EXPOSE 8001
+# Открываем порт 8000
+EXPOSE 8000
 
-# Команда по умолчанию - запуск на порту 8001
-CMD ["gunicorn", "--bind", "0.0.0.0:8001", "--workers", "3", "--timeout", "120", "core.wsgi:application"]
+# Команда по умолчанию - запуск на порту 8000
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "core.wsgi:application"]

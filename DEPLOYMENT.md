@@ -137,10 +137,10 @@ sudo crontab -e
 ### 1. Проверка работы сайта
 ```bash
 # Проверка HTTP
-curl http://45.156.22.93:8001
+curl http://45.156.22.93:8000
 
 # Проверка через браузер
-# http://45.156.22.93:8001
+# http://45.156.22.93:8000
 # https://saas-automation.com (после SSL)
 ```
 
@@ -247,4 +247,4 @@ sudo systemctl status nginx
 1. Проверьте логи: `sudo docker-compose logs -f web`
 2. Проверьте статус контейнеров: `sudo docker-compose ps`
 3. Проверьте конфигурацию nginx: `sudo nginx -t`
-4. Проверьте доступность портов: `sudo netstat -tlnp | grep :8001`
+4. Проверьте доступность портов: `sudo netstat -tlnp | grep :8000`

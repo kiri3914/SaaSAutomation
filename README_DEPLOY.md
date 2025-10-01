@@ -69,10 +69,10 @@ chmod +x deploy-docker.sh
 
 После успешного деплоя:
 
-- **HTTP:** http://45.156.22.93:8001
+- **HTTP:** http://45.156.22.93:8000
 - **Домен:** https://saas-automation.com (после SSL)
-- **Admin:** http://45.156.22.93:8001/admin/
-- **API Docs:** http://45.156.22.93:8001/swagger/
+- **Admin:** http://45.156.22.93:8000/admin/
+- **API Docs:** http://45.156.22.93:8000/swagger/
 
 **Логин в админку:**
 - Email: admin@saas-automation.com
@@ -156,8 +156,8 @@ sudo systemctl restart nginx
 ## 📋 Технические детали
 
 - **Django:** 4.2.18 (LTS)
-- **Python:** 3.9
-- **PostgreSQL:** 15-alpine
+- **Python:** 3.12
+- **PostgreSQL:** 17-alpine
 - **Nginx:** Reverse proxy
 - **Gunicorn:** WSGI server
 - **Docker:** Контейнеризация
