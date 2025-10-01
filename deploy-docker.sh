@@ -149,8 +149,8 @@ sudo docker compose exec web python manage.py check --settings=core.settings_pro
 
 # Настройка nginx
 log "Настраиваем nginx..."
-sudo cp nginx-saas-automation.conf ${NGINX_SITES_PATH}/demo.saas-automation.com
-sudo ln -sf ${NGINX_SITES_PATH}/demo.saas-automation.com ${NGINX_ENABLED_PATH}/
+sudo cp nginx-saas-automation.conf ${NGINX_SITES_PATH}/demo.saas-automation.kz
+sudo ln -sf ${NGINX_SITES_PATH}/demo.saas-automation.kz ${NGINX_ENABLED_PATH}/
 
 # Проверка конфигурации nginx
 log "Проверяем конфигурацию nginx..."
@@ -167,11 +167,11 @@ sudo docker compose ps
 success "Деплой завершен!"
 log "Следующие шаги:"
 echo "1. Настройте SSL сертификат:"
-echo "   sudo certbot --nginx -d demo.saas-automation.com"
+echo "   sudo certbot --nginx -d demo.saas-automation.kz"
 echo ""
 echo "2. Проверьте работу сайта:"
 echo "   http://45.156.22.93:8000"
-echo "   https://demo.saas-automation.com (после SSL)"
+echo "   https://demo.saas-automation.kz (после SSL)"
 echo ""
 echo "3. Проверьте контейнер:"
 echo "   sudo docker compose ps"
