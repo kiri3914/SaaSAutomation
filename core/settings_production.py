@@ -18,7 +18,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'your-production-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-SERVER_DOMAIN = os.getenv('SERVER_DOMAIN', 'saas-automation.com')
+SERVER_DOMAIN = os.getenv('SERVER_DOMAIN', 'demo.saas-automation.com')
 SERVER_IP = os.getenv('SERVER_IP', '45.156.22.93')
 
 ALLOWED_HOSTS = [
@@ -26,8 +26,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     SERVER_DOMAIN,
     SERVER_IP,
-    'saas-automation.com',
-    'www.saas-automation.com',
+    'demo.saas-automation.com',
+    'www.demo.saas-automation.com',
 ]
 
 INSTALLED_APPS = [
@@ -169,8 +169,8 @@ MIN_STUDENTS_TO_START = 8
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    'https://saas-automation.com',
-    'https://www.saas-automation.com',
+    'https://demo.saas-automation.com',
+    'https://www.demo.saas-automation.com',
     'http://45.156.22.93',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -204,8 +204,8 @@ HTTPS_SERVER_IP = 'https://' + SERVER_IP
 CSRF_TRUSTED_ORIGINS = [
     HTTPS_SERVER_DOMAIN,
     HTTPS_SERVER_IP,
-    'https://saas-automation.com',
-    'https://www.saas-automation.com',
+    'https://demo.saas-automation.com',
+    'https://www.demo.saas-automation.com',
     'http://45.156.22.93',
 ]
 

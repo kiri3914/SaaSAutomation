@@ -128,20 +128,20 @@ sudo docker compose exec web python manage.py migrate --settings=core.settings_p
 
 # Создание суперпользователя (если не существует)
 log "Проверяем суперпользователя..."
-sudo docker compose exec web python manage.py shell --settings=core.settings_production << 'PYTHON_EOF'
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(is_superuser=True).exists():
-    print("Создаем суперпользователя...")
-    User.objects.create_superuser(
-        username='admin',
-        password='admin123',
-        email='admin@saas-automation.com'
-    )
-    print("Суперпользователь создан: admin / admin123")
-else:
-    print("Суперпользователь уже существует")
-PYTHON_EOF
+# sudo docker compose exec web python manage.py shell --settings=core.settings_production << 'PYTHON_EOF'
+# from django.contrib.auth import get_user_model
+# User = get_user_model()
+# if not User.objects.filter(is_superuser=True).exists():
+#     print("Создаем суперпользователя...")
+#     User.objects.create_superuser(
+#         username='admin',
+#         password='admin123',
+#         email='admin@saas-automation.com'
+#     )
+#     print("Суперпользователь создан: admin / admin123")
+# else:
+#     print("Суперпользователь уже существует")
+# PYTHON_EOF
 
 # Проверка конфигурации
 log "Проверяем конфигурацию Django..."
@@ -149,8 +149,8 @@ sudo docker compose exec web python manage.py check --settings=core.settings_pro
 
 # Настройка nginx
 log "Настраиваем nginx..."
-sudo cp nginx-saas-automation.conf ${NGINX_SITES_PATH}/saas-automation.com
-sudo ln -sf ${NGINX_SITES_PATH}/saas-automation.com ${NGINX_ENABLED_PATH}/
+sudo cp nginx-saas-automation.conf ${NGINX_SITES_PATH}/demo.saas-automation.com
+sudo ln -sf ${NGINX_SITES_PATH}/demo.saas-automation.com ${NGINX_ENABLED_PATH}/
 
 # Проверка конфигурации nginx
 log "Проверяем конфигурацию nginx..."
@@ -167,11 +167,11 @@ sudo docker compose ps
 success "Деплой завершен!"
 log "Следующие шаги:"
 echo "1. Настройте SSL сертификат:"
-echo "   sudo certbot --nginx -d saas-automation.com"
+echo "   sudo certbot --nginx -d demo.saas-automation.com"
 echo ""
 echo "2. Проверьте работу сайта:"
 echo "   http://45.156.22.93:8000"
-echo "   https://saas-automation.com (после SSL)"
+echo "   https://demo.saas-automation.com (после SSL)"
 echo ""
 echo "3. Проверьте контейнер:"
 echo "   sudo docker compose ps"
